@@ -1,4 +1,4 @@
-package com.example.usertestproject.config;
+package com.example.feignserver.config;
 
 
 import io.swagger.v3.oas.models.media.StringSchema;

@@ -2,11 +2,13 @@ plugins {
 	id 'org.springframework.boot' version '2.7.2'
 	id 'io.spring.dependency-management' version '1.0.12.RELEASE'
 	id 'java'
+	id 'com.bmuschko.docker-remote-api' version '7.3.0'
+	id 'com.bmuschko.docker-spring-boot-application' version '7.3.0'
 }
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
+
 
 configurations {
 	compileOnly {
@@ -28,6 +30,10 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	implementation 'org.springdoc:springdoc-openapi-ui:1.6.6'
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:3.1.2'
+	implementation files('libs/starter.jar')
 }
 
 dependencyManagement {
@@ -35,7 +41,38 @@ dependencyManagement {
 		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
 	}
 }
+import com.bmuschko.gradle.docker.tasks.container.*;
+import com.bmuschko.gradle.docker.tasks.image.*;
 
+task removeContainer(type: DockerRemoveContainer){
+	force = true
+	containerId = 'feign-server'
+	onError(ex -> print ex.getMessage())
+}
+
+task removeImage(type: DockerRemoveImage){
+	dependsOn removeContainer
+	force = true
+	targetImageId('bobrenok/feign-server')
+	onError(ex -> print ex.getMessage())
+}
+
+docker {
+	dockerBuildImage {
+		dependsOn removeImage
+		dockerFile = null
+		images = ['bobrenok/feign-server']
+	}
+}
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(11)
+	}
+}
+task("recreate"){
+	group 'docker'
+	dependsOn dockerBuildImage
+}
 tasks.named('test') {
 	useJUnitPlatform()
 }

@@ -1,4 +1,4 @@
-package com.example.usertestproject.dto;
+package com.example.feignserver.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

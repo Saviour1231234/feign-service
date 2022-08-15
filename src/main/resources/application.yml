@@ -1,1 +1,17 @@
-
+api:
+  gateway: ${GATEWAY_SERVICE:GATEWAY}
+server:
+  port: 8081
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${DISCOVERY_URI}
+  instance:
+    hostname: ${HOST_NAME:feign-server}
+feign:
+  autoconfiguration:
+    jackson:
+      enabled: true
+spring:
+  application:
+    name: feign-server
